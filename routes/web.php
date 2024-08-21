@@ -26,7 +26,7 @@ use App\Http\Controllers\EmpleadoController;
     ]);
 
     // Ruta para buscar empleados por nombre
-    Route::get('empleados/buscar', [EmpleadoController::class, 'busqueda'])->name('empleados.search');
+    Route::get('empleados/buscar', [EmpleadoController::class, 'search'])->name('empleados.search');
     
     // Ruta para generar QR y PDF (opcional si lo necesitas fuera del registro)
     Route::get('empleados/generar-pdf/{id}', [EmpleadoController::class, 'generateQRCodeAndPDF'])->name('empleados.generar-pdf');

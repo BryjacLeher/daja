@@ -64,4 +64,14 @@
 
     
 </div>
+@if(session('pdfPath'))
+        <script>
+            // Descargar el archivo PDF
+            const pdfPath = "{{ asset(session('pdfPath')) }}";
+            const link = document.createElement('a');
+            link.href = pdfPath;
+            link.download = '';
+            link.click();
+        </script>
+    @endif
 @endsection

@@ -23,27 +23,30 @@ class EmpleadoController extends Controller
 
     // Registrar un nuevo empleado
     public function store(Request $request)
-{
-    // Validar el request
-    $validated = $request->validate([
-        'nombre' => 'required|string|max:255',
-        'apellido' => 'required|string|max:255',
-        'telefono' => 'nullable|string|max:20',
-        'paga_por_hora' => 'required|numeric',
-    ]);
+    {
+        // Validar el request
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'apellido' => 'required|string|max:255',
+            'telefono' => 'nullable|string|max:20',
+            'paga_por_hora' => 'required|numeric',
+        ]);
 
-    $empleado = new Empleado();
-    $empleado->nombre = $request->nombre;
-    $empleado->apellido = $request->apellido;
-    $empleado->telefono = $request->telefono;
-    $empleado->paga_por_hora = $request->paga_por_hora;
-    $empleado->save();
+        $empleado = new Empleado();
+        $empleado->nombre = $request->nombre;
+        $empleado->apellido = $request->apellido;
+        $empleado->telefono = $request->telefono;
+        $empleado->paga_por_hora = $request->paga_por_hora;
+        $empleado->save();
 
-    // Generar QR y PDF
-    $pdfPath = $this->generateQRCodeAndPDF($empleado);
+        // Generar QR y PDF
+        $pdfPath = $this->generateQRCodeAndPDF($empleado);
+        
 
-    return response()->download($pdfPath)->deleteFileAfterSend(true);
-}
+        // Redirige al índice con la ruta del PDF
+        return redirect()->route('empleados.index')->with('pdfPath', $pdfPath);
+    }
+
 
 
     // Editar un empleado existente
@@ -79,40 +82,40 @@ class EmpleadoController extends Controller
 
     // Generar QR y PDF
     private function generateQRCodeAndPDF(Empleado $empleado)
-{
-    $claveUnica = $empleado->id; // Usar ID como clave única
+    {
+        $claveUnica = $empleado->id; // Usar ID como clave única
 
-    // Ruta para almacenar el QR
-    $qrCodePath = public_path('storage/qr-codes/employee-' . $claveUnica . '.png');
-    
-    // Verifica si el directorio existe; si no, créalo
-    $directory = dirname($qrCodePath);
-    if (!file_exists($directory)) {
-        mkdir($directory, 0777, true);
+        // Ruta para almacenar el QR
+        $qrCodePath = public_path('storage/qr-codes/employee-' . $claveUnica . '.png');
+        
+        // Verifica si el directorio existe; si no, créalo
+        $directory = dirname($qrCodePath);
+        if (!file_exists($directory)) {
+            mkdir($directory, 0777, true);
+        }
+
+        // Generar código QR
+        $qrCode = QrCode::format('png')->size(200)->generate($claveUnica);
+        file_put_contents($qrCodePath, $qrCode);
+
+        // Generar PDF
+        $pdf = Pdf::loadView('pdf.employee', [
+            'empleado' => $empleado,
+            'qrCodePath' => asset('storage/qr-codes/employee-' . $claveUnica . '.png') // Usa asset() para la URL
+        ]);
+
+        $pdfPath = public_path('storage/pdfs/employee-' . $claveUnica . '.pdf');
+
+        // Verifica si el directorio existe; si no, créalo
+        $pdfDirectory = dirname($pdfPath);
+        if (!file_exists($pdfDirectory)) {
+            mkdir($pdfDirectory, 0777, true);
+        }
+
+        $pdf->save($pdfPath);
+        $pdfPath = asset('storage/pdfs/employee-' . $claveUnica . '.pdf');
+        return $pdfPath; // Retorna la ruta del PDF generado
     }
-
-    // Generar código QR
-    $qrCode = QrCode::format('png')->size(200)->generate('https://example.com/employee?id=' . $claveUnica);
-    file_put_contents($qrCodePath, $qrCode);
-
-    // Generar PDF
-    $pdf = Pdf::loadView('pdf.employee', [
-        'empleado' => $empleado,
-        'qrCodePath' => asset('storage/qr-codes/employee-' . $claveUnica . '.png') // Usa asset() para la URL
-    ]);
-
-    $pdfPath = public_path('storage/pdfs/employee-' . $claveUnica . '.pdf');
-
-    // Verifica si el directorio existe; si no, créalo
-    $pdfDirectory = dirname($pdfPath);
-    if (!file_exists($pdfDirectory)) {
-        mkdir($pdfDirectory, 0777, true);
-    }
-
-    $pdf->save($pdfPath);
-
-    return $pdfPath; // Retorna la ruta del PDF generado
-}
 
 
     // Buscar empleados por nombre
