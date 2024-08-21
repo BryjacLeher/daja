@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\EmpleadoController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,6 +13,26 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Grupo de rutas para Empleados
+
+    // Rutas de Empleados
+    Route::resource('empleados', EmpleadoController::class)->except(['show'])->names([
+        'index' => 'empleados.index',
+        'create' => 'empleados.create',
+        'store' => 'empleados.store',
+        'edit' => 'empleados.edit',
+        'update' => 'empleados.update',
+        'destroy' => 'empleados.destroy',
+    ]);
+
+    // Ruta para buscar empleados por nombre
+    Route::get('empleados/buscar', [EmpleadoController::class, 'busqueda'])->name('empleados.search');
+    
+    // Ruta para generar QR y PDF (opcional si lo necesitas fuera del registro)
+    Route::get('empleados/generar-pdf/{id}', [EmpleadoController::class, 'generateQRCodeAndPDF'])->name('empleados.generar-pdf');
+
+
+
 Route::get('/', function () {
-    return view('welcome');
+    return view ('layouts.general');
 });
