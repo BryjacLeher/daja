@@ -12,7 +12,7 @@ class EmpleadoController extends Controller
     // Consultar todos los empleados
     public function index()
     {
-        $empleados = Empleado::all();
+        $empleados = Empleado::orderBy('nombre', 'asc')->get();
         return view('empleados.index',compact('empleados'));
     }
 
@@ -47,7 +47,12 @@ class EmpleadoController extends Controller
         return redirect()->route('empleados.index')->with('pdfPath', $pdfPath);
     }
 
+    public function edit($id)
+    {
+        $empleado = Empleado::findOrFail($id);
 
+        return view('empleados.edit',compact('empleado'));
+    }
 
     // Editar un empleado existente
     public function update(Request $request, $id)
@@ -61,7 +66,7 @@ class EmpleadoController extends Controller
 
         $empleado->save();
 
-        return response()->json(['message' => 'Empleado actualizado exitosamente']);
+        return redirect()->route('empleados.index');
     }
 
     // Eliminar un empleado
@@ -70,7 +75,7 @@ class EmpleadoController extends Controller
         $empleado = Empleado::findOrFail($id);
         $empleado->delete();
 
-        return response()->json(['message' => 'Empleado eliminado exitosamente']);
+        return redirect()->route('empleados.index');
     }
 
     // Consultar un empleado por ID
@@ -80,6 +85,17 @@ class EmpleadoController extends Controller
         return response()->json($empleado);
     }
 
+    public function qr($id)
+    {   
+        $empleado = Empleado::findOrFail($id);
+        // Generar QR y PDF
+        $pdfPath = $this->generateQRCodeAndPDF($empleado);
+        
+
+        // Redirige al índice con la ruta del PDF
+        return redirect()->route('empleados.index')->with('pdfPath', $pdfPath);
+
+    }
     // Generar QR y PDF
     private function generateQRCodeAndPDF(Empleado $empleado)
     {

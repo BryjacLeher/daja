@@ -30,6 +30,9 @@ use App\Http\Controllers\EmpleadoController;
     
     // Ruta para generar QR y PDF (opcional si lo necesitas fuera del registro)
     Route::get('empleados/generar-pdf/{id}', [EmpleadoController::class, 'generateQRCodeAndPDF'])->name('empleados.generar-pdf');
+    // Ruta para generar QR y PDF (opcional si lo necesitas fuera del registro)
+    Route::get('empleados/qruwu{id}', [EmpleadoController::class, 'qr'])->name('empleados.qrg');
+    
 
 
 

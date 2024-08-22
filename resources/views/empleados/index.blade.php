@@ -49,7 +49,10 @@
                     <td>{{ $empleado->paga_por_hora }}</td>
                     <td>
                         <form class="btn-group centrado" action="{{ route('empleados.destroy', $empleado->id) }}" method="POST">
-                            <a class="btn btn-outline-primary" href="{{ route('empleados.edit', $empleado->id) }}"><i class="bi bi-pencil-square"></i></a>                                   
+                            <a class="btn btn-outline-primary" href="{{ route('empleados.edit', $empleado) }}"><i class="bi bi-pencil-square"></i></a>  
+                            <a class="btn btn-outline-success" href="{{ route('empleados.qrg', $empleado->id) }}">
+                                <i class="bi bi-qr-code"></i> <!-- Icono de ejemplo -->
+                            </a>                                 
                             @csrf
                             @method('DELETE')
                             <button type="submit" onclick="return confirm('¿Deseas borrar el empleado con ID {{$empleado->id}}?')" class="btn btn-outline-danger">
